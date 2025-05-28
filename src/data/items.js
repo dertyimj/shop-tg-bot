@@ -2,9 +2,14 @@ const items = [
   {
     id: 1,
     title: "Swiss Watch",
-    desc: "Элитные швейцарские часы.",
+    desc: "Элитные швейцарские часы. -35% только сегодня!",
     price: 21900,
     img: "https://cdn-icons-png.flaticon.com/512/3144/3144456.png",
+    category: "часы",
+    discount: 35,
+    popularity: 98,
+    isGift: false,
+    progress: 100,
   },
   {
     id: 2,
@@ -12,6 +17,11 @@ const items = [
     desc: "Цветок сакуры. Символ гармонии.",
     price: 3960,
     img: "https://cdn-icons-png.flaticon.com/512/616/616494.png",
+    category: "аксессуары",
+    discount: 0,
+    popularity: 80,
+    isGift: true,
+    progress: 60,
   },
   {
     id: 3,
@@ -19,6 +29,11 @@ const items = [
     desc: "Мухомор для настоящих разведчиков.",
     price: 3080,
     img: "https://cdn-icons-png.flaticon.com/512/6579/6579083.png",
+    category: "мемы",
+    discount: 0,
+    popularity: 74,
+    isGift: false,
+    progress: 40,
   },
   {
     id: 4,
@@ -26,7 +41,24 @@ const items = [
     desc: "Пиксельный кот. Просто must-have.",
     price: 650,
     img: "https://cdn-icons-png.flaticon.com/512/616/616408.png",
+    category: "мемы",
+    discount: 10,
+    popularity: 99,
+    isGift: false,
+    progress: 15,
+  },
+  {
+    id: 5,
+    title: "Секретный Item",
+    desc: "Для тех, кто любит искать пасхалки!",
+    price: 999,
+    img: "https://cdn-icons-png.flaticon.com/512/991/991993.png",
+    category: "редкое",
+    discount: 0,
+    popularity: 15,
+    isGift: false,
+    progress: 1,
   }
+  // ...Добавьте больше товаров и прокачайте их!
 ];
-
 export default items;
