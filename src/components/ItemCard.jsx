@@ -7,15 +7,23 @@ export default function ItemCard({ item, onClick, addToCart }) {
       className="bg-cardbg rounded-2xl shadow-card p-4 flex flex-col items-center cursor-pointer transition select-none border-b-4 border-accent2"
       onClick={() => onClick(item)}
       tabIndex={0}
+      style={{ userSelect: "none" }}
     >
-      <img src={item.img} alt={item.title} className="w-20 h-20 object-contain mb-3 rounded-xl pointer-events-none" draggable="false" />
-      <div className="font-bold text-white text-base mb-1">{item.title}</div>
-      <div className="text-sm text-accent mb-2">₽ {item.price}</div>
+      <img
+        src={item.img}
+        alt={item.title}
+        className="w-20 h-20 object-contain mb-3 rounded-xl pointer-events-none"
+        draggable="false"
+        style={{ userSelect: "none", pointerEvents: "none" }}
+      />
+      <div className="font-bold text-white text-base mb-1 select-none">{item.title}</div>
+      <div className="text-sm text-accent mb-2 select-none">₽ {item.price}</div>
       <motion.button
         whileTap={{ scale: 0.94 }}
         className="bg-accent2 hover:bg-green text-mainbg rounded-xl px-4 py-2 mt-1 font-bold transition active:scale-95 shadow"
         onClick={e => { e.stopPropagation(); addToCart(item); }}
         tabIndex={0}
+        style={{ userSelect: "none" }}
       >
         В корзину
       </motion.button>
