@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./index.html",
@@ -7,23 +6,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        dark: "#111217",
-        light: "#fff",
-        grayish: "#232429",
-        accent: "#ffffff",
-        neon: "#00ffe7",
-        warning: "#ffae00",
-        error: "#ff3b6b",
+        mainbg: "#111113",
+        cardbg: "#18181c",
+        accent: "#00fff7",
+        accent2: "#fff",
+        btnbg: "#191921",
+        pink: "#ff45e4",
+        vibebg: "#141419",
+        darkglow: "#24242c",
       },
       boxShadow: {
-        glow: "0 0 18px 3px #00ffe777",
-        bigglow: "0 0 40px 8px #00ffe788",
-        neon: "0 0 8px #00ffe7, 0 0 32px #00ffe7aa",
-      },
-      fontFamily: {
-        inter: ["Inter", "Arial", "sans-serif"]
-      },
-    },
+        'glow': '0 0 20px #00fff7cc, 0 0 40px #fff5',
+        'btn': '0 0 18px #00fff799, 0 0 30px #fff6',
+      }
+    }
   },
   plugins: [],
-};
+}
+
