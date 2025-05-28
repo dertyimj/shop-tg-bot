@@ -3,24 +3,36 @@
 @tailwind utilities;
 
 body {
-  background-color: #222034;
+  background: #111113;
   font-family: 'Inter', Arial, sans-serif;
-  user-select: none;             /* Запрет выделения текста */
+  color: #fff;
+  user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+  letter-spacing: -0.01em;
 }
 
 img, .no-select {
-  pointer-events: none;          /* Запрет перетаскивания фото */
+  pointer-events: none;
   user-select: none;
 }
 
 button, a, .button {
-  transition: all 0.15s;
+  transition: all 0.18s cubic-bezier(.4,0,.2,1);
   user-select: none;
   outline: none;
 }
 
 *:focus {
   outline: none !important;
+}
+
+.glow {
+  filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 24px #00fff7aa);
+}
+.glow-accent {
+  filter: drop-shadow(0 0 10px #00fff7cc);
+}
+.glow-btn {
+  box-shadow: 0 0 16px #00fff7cc, 0 0 32px #fff3;
 }
