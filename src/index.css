@@ -3,5 +3,24 @@
 @tailwind utilities;
 
 body {
-  background-color: #24252d;
+  background-color: #222034;
+  font-family: 'Inter', Arial, sans-serif;
+  user-select: none;             /* Запрет выделения текста */
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+img, .no-select {
+  pointer-events: none;          /* Запрет перетаскивания фото */
+  user-select: none;
+}
+
+button, a, .button {
+  transition: all 0.15s;
+  user-select: none;
+  outline: none;
+}
+
+*:focus {
+  outline: none !important;
 }
