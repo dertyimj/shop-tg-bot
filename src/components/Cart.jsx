@@ -38,4 +38,17 @@ export default function Cart({ items, onClose, onPay }) {
             </div>
             <motion.button
               whileTap={{ scale: 0.96 }}
-              className={`w-fu
+              className={`w-full mt-6 bg-accent text-mainbg font-bold rounded-xl px-4 py-4 text-xl transition-all active:scale-95 shadow-glow glow-btn ${
+                items.length === 0 ? "opacity-60 pointer-events-none" : ""
+              }`}
+              onClick={onPay}
+              disabled={items.length === 0}
+            >
+              Оплатить
+            </motion.button>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
