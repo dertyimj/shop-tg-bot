@@ -1,4 +1,3 @@
-// src/data/items.js
 const items = [
   {
     id: 1,
@@ -20,6 +19,13 @@ const items = [
     desc: "Мухомор для настоящих разведчиков.",
     price: 3080,
     img: "https://cdn-icons-png.flaticon.com/512/6579/6579083.png",
+  },
+  {
+    id: 4,
+    title: "Pixel Cat",
+    desc: "Пиксельный кот. Просто must-have.",
+    price: 650,
+    img: "https://cdn-icons-png.flaticon.com/512/616/616408.png",
   }
 ];
 
