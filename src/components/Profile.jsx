@@ -1,181 +1,229 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { FaCrown, FaGift, FaHistory, FaCheck, FaStar, FaUsers, FaEdit, FaTrophy, FaArrowDown, FaMedal, FaAngleDown, FaUserEdit, FaKey, FaTelegramPlane, FaBell } from "react-icons/fa";
+import OrderHistory from "./OrderHistory";
+import SupportChat from "./SupportChat";
+import LevelUpModal from "./LevelUpModal";
+import BadgeGallery from "./BadgeGallery";
+import AchievementFeed from "./AchievementFeed";
+import ReferralCard from "./ReferralCard";
+import EditProfileModal from "./EditProfileModal";
+import { getLevel, getProgress, getAchievements, getBadges, getNextReward, saveProfile, getProfile } from "../utils/profileUtils";
 
-// Данные пользователя (аватар и ник берутся из пропсов user)
-// Для реального проекта inventory и orders можно брать из API или localStorage
+export default function Profile({ user }) {
+  const [activeTab, setActiveTab] = useState("inventory");
+  const [profile, setProfile] = useState(getProfile(user));
+  const [showEdit, setShowEdit] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const [showBadges, setShowBadges] = useState(false);
+  const [showFeed, setShowFeed] = useState(false);
+  const [achievements, setAchievements] = useState(getAchievements(user));
+  const [badges, setBadges] = useState(getBadges(user));
+  const [progress, setProgress] = useState(getProgress(user));
+  const [nextReward, setNextReward] = useState(getNextReward(user));
+  const [referralModal, setReferralModal] = useState(false);
 
-const fakeInventory = [
-  {
-    id: 1,
-    title: "Swiss Watch",
-    img: "https://cdn-icons-png.flaticon.com/512/3144/3144456.png",
-  },
-  {
-    id: 2,
-    title: "Sakura Flower",
-    img: "https://cdn-icons-png.flaticon.com/512/616/616494.png",
-  },
-];
+  // Анимация увеличения уровня
+  useEffect(() => {
+    if (profile.lvlUp) {
+      setShowLevelUp(true);
+      setTimeout(() => setShowLevelUp(false), 3500);
+      setProfile(p => ({ ...p, lvlUp: false }));
+    }
+  }, [profile.lvlUp]);
 
-const fakeOrders = [
-  {
-    id: 1,
-    title: "Swiss Watch",
-    img: "https://cdn-icons-png.flaticon.com/512/3144/3144456.png",
-    price: 21900,
-    createdAt: Date.now() - 86400000, // вчера
-    status: "В пути",
-    desc: "Элитные швейцарские часы.",
-  },
-  {
-    id: 2,
-    title: "Spy Agaric",
-    img: "https://cdn-icons-png.flaticon.com/512/6579/6579083.png",
-    price: 3080,
-    createdAt: Date.now(),
-    status: "Готовится к отправке",
-    desc: "Мухомор для настоящих разведчиков.",
-  },
-];
+  // Сохранение профиля
+  useEffect(() => {
+    saveProfile(profile);
+  }, [profile]);
 
-function formatTime(ts) {
-  const date = new Date(ts);
-  return date.toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-}
-
-export default function Profile({ user = {} }) {
-  const [active, setActive] = useState("inventory");
-  const [selectedOrder, setSelectedOrder] = useState(null);
-
-  // Можно заменить на реальные данные из localStorage или API:
-  const inventory = fakeInventory;
-  const orders = fakeOrders;
+  // Tab контент
+  function renderTab() {
+    if (activeTab === "inventory") {
+      return (
+        <div>
+          <h3 className="font-bold text-accent text-lg mb-2 flex items-center">
+            <FaGift className="mr-2" /> Мои товары
+          </h3>
+          <InventoryGrid user={user} />
+        </div>
+      );
+    }
+    if (activeTab === "orders") {
+      return <OrderHistory user={user} />;
+    }
+    if (activeTab === "feed") {
+      return <AchievementFeed user={user} />;
+    }
+    if (activeTab === "badges") {
+      return <BadgeGallery badges={badges} />;
+    }
+    if (activeTab === "referrals") {
+      return <ReferralCard user={user} />;
+    }
+    return null;
+  }
 
   return (
-    <div className="max-w-md mx-auto pt-2">
-      {/* Аватар и ник */}
-      <div className="flex flex-col items-center mb-5">
+    <div className="relative w-full min-h-screen pb-28">
+      {/* Аватар, имя, уровень */}
+      <div className="flex items-center px-5 pt-6 pb-3 border-b-2 border-accent2 bg-cardbg/80 rounded-b-3xl shadow-glow">
         <img
-          src={user?.photo_url || "https://cdn-icons-png.flaticon.com/512/921/921347.png"}
-          className="w-20 h-20 rounded-full mb-2 border-4 border-accent shadow-xl select-none"
+          src={profile?.avatar || user?.photo_url || "https://cdn-icons-png.flaticon.com/512/921/921347.png"}
           alt="avatar"
+          className="w-20 h-20 rounded-full border-4 border-accent2 shadow-glow glow mr-4 object-cover"
           draggable="false"
           style={{ userSelect: "none", pointerEvents: "none" }}
         />
-        <div className="font-bold text-white text-lg select-none">{user?.first_name || "Гость"}</div>
-      </div>
-      {/* Вкладки */}
-      <div className="flex justify-center mb-4">
-        <button
-          className={`px-4 py-2 rounded-xl font-bold mx-1 transition-all duration-200 ${
-            active === "inventory" ? "bg-accent text-white shadow" : "bg-[#292a35] text-gray-300"
-          }`}
-          onClick={() => setActive("inventory")}
-        >
-          Инвентарь
-        </button>
-        <button
-          className={`px-4 py-2 rounded-xl font-bold mx-1 transition-all duration-200 ${
-            active === "orders" ? "bg-accent2 text-mainbg shadow" : "bg-[#292a35] text-gray-300"
-          }`}
-          onClick={() => setActive("orders")}
-        >
-          Заказы
-        </button>
-      </div>
-      {/* Контент вкладок */}
-      <AnimatePresence mode="wait">
-        {active === "inventory" ? (
-          <motion.div
-            key="inventory"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            className="grid grid-cols-2 gap-4"
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h2 className="font-extrabold text-xl text-white">{profile?.name || user?.first_name || "User"}</h2>
+            {profile?.level > 3 && <FaCrown className="text-accent2 text-xl glow" title="PRO Level" />}
+            {profile?.verified && <FaCheck className="text-green-400" title="Профиль подтверждён" />}
+            <button className="ml-2 bg-accent2 text-mainbg px-2 py-1 rounded-xl shadow-glow font-bold text-sm hover:bg-accent"
+              onClick={() => setShowEdit(true)}
+            >
+              <FaEdit />
+            </button>
+          </div>
+          <div className="flex items-center gap-3 mt-1">
+            <span className="text-accent2 font-bold text-lg">LVL {profile?.level || 1}</span>
+            <ProgressBar value={progress} />
+            <span className="text-xs text-gray-400">{progress}%</span>
+          </div>
+          <div className="text-xs text-gray-400 mt-1">
+            {profile.status || "Новичок"}
+          </div>
+        </div>
+        <div>
+          <button
+            className="bg-accent2 text-mainbg w-10 h-10 rounded-xl shadow-glow flex items-center justify-center text-2xl"
+            onClick={() => setShowSupport(true)}
+            title="Чат поддержки"
           >
-            {inventory.length === 0 ? (
-              <div className="text-gray-400 text-center mt-8 col-span-2">Инвентарь пуст</div>
-            ) : (
-              inventory.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-cardbg rounded-2xl shadow-card p-4 flex flex-col items-center select-none"
-                  style={{ userSelect: "none", pointerEvents: "none" }}
-                >
-                  <img src={item.img} className="w-16 h-16 mb-2 rounded-xl" alt={item.title} draggable="false" />
-                  <div className="font-bold text-white text-base">{item.title}</div>
-                </div>
-              ))
-            )}
-          </motion.div>
-        ) : (
-          <motion.div
-            key="orders"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-          >
-            <h2 className="text-xl font-bold mb-4 text-accent select-none">История заказов</h2>
-            {orders.length === 0 ? (
-              <div className="text-gray-400 text-center mt-12">У вас нет заказов.</div>
-            ) : (
-              <div className="space-y-4">
-                {orders.map(order => (
-                  <motion.div
-                    key={order.id}
-                    className="flex items-center bg-cardbg rounded-2xl shadow-card p-4 cursor-pointer hover:scale-[1.03] transition border-l-4 border-accent2"
-                    onClick={() => setSelectedOrder(order)}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    <img src={order.img} className="w-14 h-14 mr-3 rounded-xl" alt={order.title} draggable="false" />
-                    <div>
-                      <div className="font-bold text-white">{order.title}</div>
-                      <div className="text-xs text-gray-400">{formatTime(order.createdAt)}</div>
-                      <span className="inline-block mt-1 px-3 py-1 text-xs font-semibold rounded-full bg-accent text-white">
-                        {order.status}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
+            <FaTelegramPlane />
+          </button>
+        </div>
+      </div>
 
-            {/* Модалка с деталями заказа */}
-            <AnimatePresence>
-              {selectedOrder && (
-                <motion.div
-                  className="fixed inset-0 flex items-center justify-center bg-black/60 z-50"
-                  onClick={() => setSelectedOrder(null)}
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                >
-                  <motion.div
-                    className="bg-vibebg p-7 rounded-2xl shadow-2xl max-w-xs w-full relative"
-                    initial={{ scale: 0.9, y: 40 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.85, opacity: 0 }}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <img src={selectedOrder.img} className="w-24 h-24 mx-auto mb-3 rounded-xl" alt={selectedOrder.title} />
-                    <div className="text-lg font-bold text-white text-center mb-1">{selectedOrder.title}</div>
-                    <div className="text-gray-300 text-center mb-2">{selectedOrder.desc}</div>
-                    <div className="text-base text-accent font-semibold mb-1 text-center">₽ {selectedOrder.price}</div>
-                    <div className="text-xs text-gray-400 mb-2 text-center">
-                      Оформлен: {formatTime(selectedOrder.createdAt)}
-                    </div>
-                    <div className="flex justify-center">
-                      <span className="px-4 py-1 rounded-full bg-accent2 text-mainbg font-bold text-xs">
-                        {selectedOrder.status}
-                      </span>
-                    </div>
-                    <button
-                      className="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl active:scale-90"
-                      onClick={() => setSelectedOrder(null)}
-                    >&times;</button>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+      {/* Кнопки вкладок */}
+      <div className="flex gap-2 mt-6 px-3 justify-center">
+        <button
+          className={`py-2 px-4 rounded-2xl font-bold ${activeTab === "inventory" ? "bg-accent text-mainbg shadow-glow" : "bg-darkglow text-accent2"}`}
+          onClick={() => setActiveTab("inventory")}
+        ><FaGift className="inline mr-1" />Инвентарь</button>
+        <button
+          className={`py-2 px-4 rounded-2xl font-bold ${activeTab === "orders" ? "bg-accent text-mainbg shadow-glow" : "bg-darkglow text-accent2"}`}
+          onClick={() => setActiveTab("orders")}
+        ><FaHistory className="inline mr-1" />Заказы</button>
+        <button
+          className={`py-2 px-4 rounded-2xl font-bold ${activeTab === "feed" ? "bg-accent text-mainbg shadow-glow" : "bg-darkglow text-accent2"}`}
+          onClick={() => setActiveTab("feed")}
+        ><FaStar className="inline mr-1" />Лента</button>
+        <button
+          className={`py-2 px-4 rounded-2xl font-bold ${activeTab === "badges" ? "bg-accent text-mainbg shadow-glow" : "bg-darkglow text-accent2"}`}
+          onClick={() => setActiveTab("badges")}
+        ><FaMedal className="inline mr-1" />Бейджи</button>
+        <button
+          className={`py-2 px-4 rounded-2xl font-bold ${activeTab === "referrals" ? "bg-accent text-mainbg shadow-glow" : "bg-darkglow text-accent2"}`}
+          onClick={() => setActiveTab("referrals")}
+        ><FaUsers className="inline mr-1" />Рефералы</button>
+      </div>
+
+      {/* Блок “достижение дня” и промо */}
+      <motion.div
+        className="mt-6 mx-4 p-4 rounded-2xl bg-gradient-to-br from-accent/30 to-pink/20 shadow-glow flex items-center gap-4"
+        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+      >
+        <FaTrophy className="text-yellow-300 text-4xl" />
+        <div>
+          <div className="font-bold text-accent2">Достижение дня:</div>
+          <div className="text-white">{achievements[0]?.title || "Сделай первую покупку!"}</div>
+        </div>
+        <button className="ml-auto bg-accent2 text-mainbg px-4 py-2 rounded-xl shadow-glow font-bold hover:bg-accent"
+          onClick={() => setShowFeed(true)}
+        >Лента</button>
+      </motion.div>
+
+      {/* Контент вкладки */}
+      <div className="p-4">{renderTab()}</div>
+
+      {/* Быстрые действия: подарки, прокачка, support */}
+      <div className="fixed bottom-16 left-0 w-full flex gap-4 px-6 justify-center items-center">
+        <button
+          className="bg-pink text-white px-5 py-3 rounded-2xl font-bold shadow-glow flex items-center gap-2 hover:bg-accent2 hover:text-mainbg"
+          onClick={() => setShowBadges(true)}
+        ><FaMedal /> Галерея бейджей</button>
+        <button
+          className="bg-accent text-mainbg px-5 py-3 rounded-2xl font-bold shadow-glow flex items-center gap-2 hover:bg-accent2"
+          onClick={() => setShowLevelUp(true)}
+        ><FaStar /> LVL-UP</button>
+        <button
+          className="bg-accent2 text-mainbg px-4 py-3 rounded-2xl font-bold shadow-glow flex items-center gap-2 hover:bg-accent"
+          onClick={() => setShowSupport(true)}
+        ><FaBell /> Support</button>
+      </div>
+
+      {/* Модальные окна */}
+      <AnimatePresence>
+        {showEdit && (
+          <EditProfileModal
+            profile={profile}
+            setProfile={setProfile}
+            onClose={() => setShowEdit(false)}
+          />
+        )}
+        {showSupport && (
+          <SupportChat user={user} onClose={() => setShowSupport(false)} />
+        )}
+        {showLevelUp && (
+          <LevelUpModal user={user} onClose={() => setShowLevelUp(false)} />
+        )}
+        {showBadges && (
+          <BadgeGallery badges={badges} onClose={() => setShowBadges(false)} />
+        )}
+        {showFeed && (
+          <AchievementFeed user={user} onClose={() => setShowFeed(false)} />
+        )}
+        {referralModal && (
+          <ReferralCard user={user} onClose={() => setReferralModal(false)} />
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+// Заглушки компонентов, для наглядности – вставьте свои или копируйте эти как старт.
+function ProgressBar({ value }) {
+  return (
+    <div className="h-3 w-32 rounded-full bg-gray-800 shadow-glow relative mx-2">
+      <div
+        className="absolute h-3 rounded-full bg-accent"
+        style={{ width: `${Math.max(5, value)}%`, minWidth: "14px" }}
+      ></div>
+    </div>
+  );
+}
+
+function InventoryGrid({ user }) {
+  // Здесь список купленных товаров пользователя
+  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  const items = [];
+  orders.forEach(order => order.items.forEach(item => items.push(item)));
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      {items.length === 0 ? (
+        <div className="col-span-2 text-accent2 font-bold text-center">Нет купленных товаров</div>
+      ) : (
+        items.map((item, i) => (
+          <div key={i} className="bg-darkglow p-3 rounded-xl shadow-glow flex flex-col items-center">
+            <img src={item.img} className="w-14 h-14 mb-1 rounded-xl glow" alt={item.title} />
+            <span className="text-white font-bold text-center">{item.title}</span>
+            <span className="text-accent text-xs">{item.price}₽</span>
+          </div>
+        ))
+      )}
     </div>
   );
 }
